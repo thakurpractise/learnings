@@ -1,0 +1,42 @@
+---
+
+- name: Create Jenkins.list file in source.list.d
+  file:
+    path: "/etc/apt/sources.list.d/jenkins.list"
+    state: touch
+
+- name: Copying the file to jenkins.list
+  shell: sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+
+- name: Import apt Key
+  shell: wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+  become: true
+
+- name: Update repos
+  shell: apt-get update
+
+
+- name: Install python Software properties
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  with_items:
+    - python-software-properties
+    - openjdk-8-jdk
+    - jenkins
+    - apache2
+  become: true
+
+- name: Start Jenkins service and enable on boot
+  service:
+    name: jenkins
+    state: started
+    enabled: yes
+
+- name: Display the secrte password
+  shell: "cat /var/lib/jenkins/secrets/initialAdminPassword"
+  register: cat_output
+- debug:
+    var: cat_output
+     
