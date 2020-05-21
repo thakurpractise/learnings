@@ -1,0 +1,18 @@
+---
+- name: Wordpress Installation Begins
+  hosts: 192.168.56.156
+  become_method: sudo
+  vars:
+   - dbname: wordpress
+   - dbuser: wordpress
+   - dbpassword: wordpress123
+
+  tasks:
+
+  - mysql_db: name={{ dbname }} state=present
+  - shell: mysql -e "GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'%'  IDENTIFIED BY 'wordpress123';"
+    tags: [ mysqldb ]
+
+  - mysql_user: name={{ dbuser }} password={{ dbpassword }}
+  - shell: mysql -e "GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost' IDENTIFIED BY 'wordpress123';"
+    tags: [ mysqldb ]
