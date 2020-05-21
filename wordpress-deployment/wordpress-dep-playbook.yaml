@@ -1,0 +1,115 @@
+---
+- name: Wordpress Installation Begins
+  hosts: 192.168.56.157
+  become_method: sudo 
+  vars:
+   - dbname: wordpress
+   - dbuser: wordpress
+   - dbpassword: wordpress123
+   - wordpress_zip: wordpress-5.4.1.zip
+#  - name: Upgrade all packages to the latest version
+#    apt:
+#      name: "*"
+#      state: latest
+#    tags: [ aptugrade-update ]
+#
+#  - name: Update all packages to the latest version
+#    apt:
+#      upgrade: dist
+#    tags: [ aptugrade-update ]
+
+  tasks: 
+  - name: Installing basic packages to avoid dependencies
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: true
+    with_items:
+       - python-minimal 
+       - python-simplejson
+       - python-apt
+       - python-pip
+       - software-properties-common
+       - unzip
+       - python3-pymysql
+    become: true
+    tags: [ aptpackage ]
+
+  - name: Install Apache packages for WORDPRESS
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: true
+    with_items:
+       - apache2 
+       - apache2-utils
+    become: true
+    tags: [ apache ]
+
+  - name: Install MYSQL packages for WORDPRESS
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: true
+    with_items:
+       - mysql-client
+       - mysql-server
+    become: true
+    tags: [ mysql ]
+ 
+  - name: Install PHP packages for WORDPRESS
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: true
+    with_items:
+       - php7.0
+       - php7.0-mysql
+       - libapache2-mod-php7.0
+       - php7.0-cli
+       - php7.0-cgi
+       - php7.0-gd
+    become: true
+    tags: [ wordpress ]
+
+  - name: Download latest WordPress
+    get_url:
+        url: http://wordpress.org/latest.zip
+        dest: /tmp/
+        timeout: 180
+    tags: [ wordpress ]
+
+  - name: Set ownership to zip file in /tmp
+    shell: "chmod -R 755 /tmp/{{ wordpress_zip }}"
+    tags: [ wordpress ]
+
+  - name: Unarchive a file that is already on the remote machine
+    unarchive:
+      src: "/tmp/{{ wordpress_zip }}"
+      dest: /var/www/html/
+      remote_src: yes
+    tags: [ wordpress ]
+
+  - name: Recursively change ownership of a wordpress directory
+    file:
+      path: /var/www/html/wordpress
+      state: directory
+      recurse: yes
+      owner: www-data
+      group: www-data
+      mode: '0755'
+    tags: [ wordpress ]
+
+  - name: Create a directory if it does not exist
+    file:
+      path: /var/www/html/wordpress/wp-content/uploads
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: '0755'
+    tags: [ wordpress ]
+
+  - name: Restart Apache2 Service
+    service: 
+       name: apache2
+       state: restarted
