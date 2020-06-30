@@ -1,12 +1,12 @@
 ---
 - name: Wordpress Installation Begins
   hosts: 192.168.56.155
-  become_method: sudo 
+  become_method: sudo
   vars:
    - dbname: wordpress
    - dbuser: wordpress
    - dbpassword: wordpress123
-#  - wordpress_zip: wordpress-5.4.1.zip
+   - wordpress_zip: wordpress.zip
 #  - name: Upgrade all packages to the latest version
 #    apt:
 #      name: "*"
@@ -18,14 +18,14 @@
 #      upgrade: dist
 #    tags: [ aptugrade-update ]
 
-  tasks: 
+  tasks:
   - name: Installing basic packages to avoid dependencies
     apt:
       name: "{{ item }}"
       state: present
       update_cache: true
     with_items:
-       - python-minimal 
+       - python-minimal
        - python-simplejson
        - python-apt
        - python-pip
@@ -41,7 +41,7 @@
       state: present
       update_cache: true
     with_items:
-       - apache2 
+       - apache2
        - apache2-utils
     become: true
     tags: [ apache ]
@@ -56,7 +56,7 @@
        - mysql-server
     become: true
     tags: [ mysql ]
- 
+
   - name: Install PHP packages for WORDPRESS
     apt:
       name: "{{ item }}"
@@ -75,18 +75,18 @@
   - name: Download latest WordPress
     get_url:
         url: http://wordpress.org/latest.zip
-        dest: /tmp/
+        dest: /tmp/wordpress.zip
         timeout: 360
     tags: [ wordpress ]
 
   - name: Set ownership to zip file in /tmp
-    shell: "chmod -R 755 /tmp/wordpress-*"
+    shell: "chmod -R 755 /tmp/{{ wordpress_zip }}"
     tags: [ wordpress ]
 
   - name: Unarchive a file that is already on the remote machine
     unarchive:
-      src: "/tmp/wordpress-*"
-      dest: /var/www/html/
+      src: "/tmp/{{ wordpress_zip }}"
+      dest: /var/www/html
       remote_src: yes
     tags: [ wordpress ]
 
@@ -110,6 +110,6 @@
     tags: [ wordpress ]
 
   - name: Restart Apache2 Service
-    service: 
+    service:
        name: apache2
        state: restarted
