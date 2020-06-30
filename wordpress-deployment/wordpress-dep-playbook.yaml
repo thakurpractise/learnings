@@ -76,7 +76,7 @@
     get_url:
         url: http://wordpress.org/latest.zip
         dest: /tmp/
-        timeout: 180
+        timeout: 360
     tags: [ wordpress ]
 
   - name: Set ownership to zip file in /tmp
