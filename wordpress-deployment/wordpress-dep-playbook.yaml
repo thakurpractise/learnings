@@ -1,6 +1,6 @@
 ---
 - name: Wordpress Installation Begins
-  hosts: 192.168.56.157
+  hosts: 192.168.56.155
   become_method: sudo 
   vars:
    - dbname: wordpress
