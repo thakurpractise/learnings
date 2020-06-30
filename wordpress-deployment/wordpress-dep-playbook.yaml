@@ -6,7 +6,7 @@
    - dbname: wordpress
    - dbuser: wordpress
    - dbpassword: wordpress123
-   - wordpress_zip: wordpress-5.4.1.zip
+#  - wordpress_zip: wordpress-5.4.1.zip
 #  - name: Upgrade all packages to the latest version
 #    apt:
 #      name: "*"
@@ -80,12 +80,12 @@
     tags: [ wordpress ]
 
   - name: Set ownership to zip file in /tmp
-    shell: "chmod -R 755 /tmp/{{ wordpress_zip }}"
+    shell: "chmod -R 755 /tmp/wordpress-*"
     tags: [ wordpress ]
 
   - name: Unarchive a file that is already on the remote machine
     unarchive:
-      src: "/tmp/{{ wordpress_zip }}"
+      src: "/tmp/wordpress-*"
       dest: /var/www/html/
       remote_src: yes
     tags: [ wordpress ]
