@@ -1,9 +1,10 @@
 pipeline {
     agent any
     stages {
-        stage('---clean---') {
+        stage( 'clone repo') {
             steps {
-                sh "mvn clean"
+                sh "git status"
+                sh " git clone https://github.com/thakurpractise/learnings.git "
             }
         }
         stage('--test--') {
