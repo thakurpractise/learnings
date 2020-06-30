@@ -7,15 +7,5 @@ pipeline {
                 sh " git clone https://github.com/thakurpractise/learnings.git "
             }
         }
-        stage('--test--') {
-            steps {
-                sh "mvn test"
-            }
-        }
-        stage('--package--') {
-            steps {
-                sh "mvn package"
-            }
-        }
     }
 }
